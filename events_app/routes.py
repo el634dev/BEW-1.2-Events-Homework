@@ -43,9 +43,9 @@ def create():
         # Create a new event with the given title, description, &
         # datetime, then add and commit to the database
         new_event = Event(
-            title=new_event_title,
-            description=new_event_description,
-            new_date=date_and_time
+            title = new_event_title,
+            description = new_event_description,
+            new_date = date_and_time
         )
 
         db.session.add(new_event)
@@ -74,20 +74,37 @@ def rsvp(event_id):
     guest_name = request.form.get('guest_name')
 
     if is_returning_guest:
-        # TODO: Look up the guest by name. If the guest doesn't exist in the
+        # Look up the guest by name. If the guest doesn't exist in the
         # database, render the event_detail.html template, and pass in an error
         # message as `error`.
+        current_guest = Guest.query.filter_by(name=guest_name).one()
 
-        # TODO: If the guest does exist, add the event to their
-        # events_attending, then commit to the database.
-        pass
+        if current_guest is None:
+            return render_template('events_details.html', error='error')
+        else:
+            current_guest.events_attending.append(event_one)
+            db.session.add(current_guest)
+            db.session.commit()
     else:
+        # If the guest does exist, add the event to their
+        # events_attending, then commit to the database.
+        current_guest.events_attending.append(event_one)
+        db.session.commit()
+
         guest_email = request.form.get('email')
         guest_phone = request.form.get('phone')
 
-        # TODO: Create a new guest with the given name, email, and phone, and 
+        # Create a new guest with the given name, email, and phone, and
         # add the event to their events_attending, then commit to the database.
-        pass
+        new_guest = Guest(
+            name = guest_name,
+            email = guest_email,
+            phone = guest_phone,
+            events_attending = event_one
+        )
+
+        db.session.add(new_guest)
+        db.session.commit()
 
     flash('You have successfully RSVP\'d! See you there!')
     return redirect(url_for('main.event_detail', event_id=event_id))

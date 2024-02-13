@@ -15,8 +15,7 @@ class Guest(db.Model):
     # - phone: String column
     phone = db.Column(db.String(40), nullable=False, unique=True)
     # - events_attending: relationship to "Event" table with a secondary table
-    events_attending = db.relationship("Event", secondary="events")
-
+    events_attending = db.relationship('Event', secondary='event_table', back_populates='events')
 
 # -----------------------------------
 # Create a model called `Event` with the following fields:
