@@ -61,7 +61,7 @@ def create():
 def event_detail(event_id):
     """Show a single event."""
     # Get the event with the given id and send to the template
-    single_event = Event.query.filter_by(event_id).first()
+    single_event = Event.query.filter_by(id=event_id).first()
     return render_template('event_detail.html', single_event=single_event)
 
 # ----------------------------------
@@ -69,7 +69,7 @@ def event_detail(event_id):
 def rsvp(event_id):
     """RSVP to an event."""
     # Get the event with the given id from the database
-    event_one = Guest.query.filter_by(event_id).first()
+    event_one = Event.query.filter_by(id=event_id).first()
     is_returning_guest = request.form.get('returning')
     guest_name = request.form.get('guest_name')
 
@@ -79,18 +79,16 @@ def rsvp(event_id):
         # message as `error`.
         current_guest = Guest.query.filter_by(name=guest_name).one()
 
-        if current_guest is None:
-            return render_template('events_details.html', error='error')
-        else:
+        if current_guest:
             current_guest.events_attending.append(event_one)
-            db.session.add(current_guest)
             db.session.commit()
+            return render_template('event_detail.html', event_id=event_id)
+        else:
+            flash('Guest does not exist')
+            return render_template(url_for('event_detail.html', event_id=event_id))
     else:
         # If the guest does exist, add the event to their
         # events_attending, then commit to the database.
-        current_guest.events_attending.append(event_one)
-        db.session.commit()
-
         guest_email = request.form.get('email')
         guest_phone = request.form.get('phone')
 
@@ -103,16 +101,17 @@ def rsvp(event_id):
             events_attending = event_one
         )
 
+        new_guest.events_attending.append(event_one)
         db.session.add(new_guest)
         db.session.commit()
 
-    flash('You have successfully RSVP\'d! See you there!')
-    return redirect(url_for('main.event_detail', event_id=event_id))
+        flash('You have successfully RSVP\'d! See you there!')
+        return redirect(url_for('main.event_detail', event_id=event_id))
 
 # ------------------------------
 @main.route('/guest/<guest_id>')
 def guest_detail(guest_id):
     """Get the guest details"""
     # Get the guest with the given id and send to the template
-    guest_one = Guest.query.filter_by(guest_id).first()
+    guest_one = Guest.query.filter_by(id=guest_id).first()
     return render_template('guest_detail.html', guest_one=guest_one)

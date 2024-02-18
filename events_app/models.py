@@ -9,13 +9,13 @@ class Guest(db.Model):
     # - id: primary key
     id = db.Column(db.Integer, primary_key=True)
     # - name: String column
-    name = db.Column(db.String(80), nullable=False, unique=True)
+    name = db.Column(db.String(80), nullable=False)
     # - email: String column
-    email = db.Column(db.String(80), nullable=False, unique=True)
+    email = db.Column(db.String(80), nullable=False)
     # - phone: String column
-    phone = db.Column(db.String(40), nullable=False, unique=True)
+    phone = db.Column(db.String(80), nullable=False)
     # - events_attending: relationship to "Event" table with a secondary table
-    events_attending = db.relationship('Event', secondary='event_table', back_populates='events')
+    events_attending = db.relationship('Event', secondary='guest_event', backref='guests')
 
 # -----------------------------------
 # Create a model called `Event` with the following fields:
@@ -28,9 +28,9 @@ class Event(db.Model):
     # - description: String column  
     description = db.Column(db.String(80), nullable=False)
     # - date_and_time: DateTime column
-    date_and_time = db.Column(DateTime)
+    date_and_time = db.Column(db.DateTime, nullable=False)
     # - guests: relationship to "Guest" table with a secondary table
-    guest = db.relationship("Guest", secondary="guests")
+    guest = db.relationship("Guest", secondary="guest_event")
 
 # STRETCH CHALLENGE: Add a field `event_type` as an Enum column that denotes the
 # type of event (Party, Study, Networking, etc)
