@@ -45,7 +45,7 @@ def create():
         new_event = Event(
             title = new_event_title,
             description = new_event_description,
-            new_date = date_and_time
+            date_and_time = date_and_time
         )
 
         db.session.add(new_event)
@@ -61,7 +61,7 @@ def create():
 def event_detail(event_id):
     """Show a single event."""
     # Get the event with the given id and send to the template
-    single_event = Event.query.filter_by(id=event_id).first()
+    single_event = Event.query.get(event_id)
     return render_template('event_detail.html', single_event=single_event)
 
 # ----------------------------------
@@ -69,7 +69,7 @@ def event_detail(event_id):
 def rsvp(event_id):
     """RSVP to an event."""
     # Get the event with the given id from the database
-    event_one = Event.query.filter_by(id=event_id).first()
+    event_one = Event.query.get(event_id)
     is_returning_guest = request.form.get('returning')
     guest_name = request.form.get('guest_name')
 
@@ -98,7 +98,6 @@ def rsvp(event_id):
             name = guest_name,
             email = guest_email,
             phone = guest_phone,
-            events_attending = event_one
         )
 
         new_guest.events_attending.append(event_one)
@@ -113,5 +112,5 @@ def rsvp(event_id):
 def guest_detail(guest_id):
     """Get the guest details"""
     # Get the guest with the given id and send to the template
-    guest_one = Guest.query.filter_by(id=guest_id).first()
-    return render_template('guest_detail.html', guest_one=guest_one)
+    guest = Guest.query.get(guest_id)
+    return render_template('guest_detail.html', guest=guest)
